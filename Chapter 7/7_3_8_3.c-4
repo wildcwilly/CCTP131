@@ -1,0 +1,99 @@
+/* 7.3.8.3 File operations: part 3
+Chris Wild
+
+Write a program that will copy a file. However, if there is a destination file, then the program should try to create a new file (with a new
+file name) until the moment a destination file has been created. Remember to close both files. Note: in a real program, it's important to
+check whether all the files needed actually exist and that you can create a copy. In our program, you should at least check that both files
+have been successfully opened. If the fopen function for the source file fails, then the program should print the message "Error opening
+file." and end the program. If the process of creating a file fails, then you should change the name of the destination file. You can append
+an integer number to the old file name. Think about a limit on the number of attempts to create a file (it depends on your operating
+system and, of course, on the specific needs of your program). If you create too many files, it could be hard to use a directory that
+contains these files. If your program has reached this limit, then it should print the message: "File count limit reached." and end the
+program.
+
+#include <stdio.h>
+
+int main()
+{
+    *** your code ***
+
+    return 0;
+}
+
+Example output
+
+Copy of the source file with the new file name.
+*/
+
+#include <stdio.h>
+#include <errno.h>
+#include <string.h>
+
+int main()
+{
+    FILE *srcFile, *destFile;
+    char *fileName = "Chapter 7/7_3_8_3.c"; /* copy this file */
+    char newFile[30];   /* string for new filename */
+    char textLine[200]; /* line of text from srcFile (current longest line is 141 characters */
+    int number = 1; /* number to append to end of new filename */
+    int fileExists, fileLimit = 5;  /* setting an arbitrary limit of 5 files */
+
+    if((srcFile = fopen(fileName, "rt")) == NULL)
+    {
+            /* file doesn't exist */
+            printf("Error opening file: \"%s\" %d - %s\n", fileName, errno, strerror(errno));
+            return 1;
+    }
+
+    do
+    {
+        /* add number to end of filename for copy file */
+        sprintf(newFile, "%s-%d", fileName, number++);
+
+        if(number > fileLimit)  /* too many files created */
+        {
+            puts("File count limit reached.");
+            return 1;
+        }
+
+        /* check if destination file exists by opening it */
+        if((destFile = fopen(newFile, "rt")) == NULL)
+        {
+            if(errno == ENOENT) /* file does not exist */
+            {
+                fileExists = 0; /* ok to create new file */
+            }
+            else    /* different error opening file */
+            {
+                printf("Problem opening file: %s\n", strerror(errno));
+                return 1;
+            }
+        }
+        else
+        {
+            /* file exists, set flag close file and try next filename */
+            fileExists = 1;
+
+            fclose(destFile);
+        }
+    }while(fileExists == 1);
+
+    /* open new file to write to */
+    if((destFile = fopen(newFile, "wt")) == NULL)
+    {
+        printf("Problem opening file: %s\n", strerror(errno));
+        return 1;
+    }
+
+    /* get each line of source file and write to destination file */
+    while((fgets(textLine, sizeof(textLine), srcFile)) != NULL)
+    {
+        fputs(textLine, destFile);
+    }
+
+    /* close open files */
+    fclose(srcFile);
+    fclose(destFile);
+
+    return 0;
+}

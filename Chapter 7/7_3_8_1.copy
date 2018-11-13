@@ -1,0 +1,61 @@
+  1 /* 7.3.8.1 File operations: part 1
+  2 Chris Wild
+  3 
+  4 Write a program that copies itself and adds line numbers to each line. You can (for now, to simplify your task, of course) assume
+  5 constant file names. First, open the file in read mode, then open the copy file in write mode. After that, line by line, get the lines from the
+  6 source file, append the number of the line to the destination file, and append the line content. Remember to close both files. Note: in a
+  7 real program, it's important to check whether all the needed files exist and that you can create a copy. In our program, you should at
+  8 least check that both files have been successfully opened. If one of the fopen functions fails, then print the message: "Error opening a
+  9 file." and end the program.
+ 10 
+ 11 #include <stdio.h>
+ 12 
+ 13 int main()
+ 14 {
+ 15     *** your code ***
+ 16 
+ 17     return 0;
+ 18 }
+ 19 
+ 20 Example output
+ 21 
+ 22 Copy of source file with line numbers.
+ 23 */
+ 24 
+ 25 #include <stdio.h>
+ 26 
+ 27 int main()
+ 28 {
+ 29     FILE *srcFile, *destFile; /* pointers for source and destination files */
+ 30     char textLine[200]; /* line of text from srcFile (current longest line is 144 characters */
+ 31     int line = 1;   /* start of line numbers for destination file */
+ 32 
+ 33     /* open this file to be read. Executable file is created in project root on my Linux setup (up 1 folder) */
+ 34     if((srcFile = fopen("Chapter 7/7_3_8_1.c", "rt")) == NULL)
+ 35     {
+ 36         puts("Can't open source file 7_3_8_1.c");
+ 37         return 1;
+ 38     }
+ 39 
+ 40     /* open destination file (this filename with .copy) */
+ 41     if((destFile = fopen("Chapter 7/7_3_8_1.copy", "wt")) == NULL)
+ 42     {
+ 43         puts("Can't open destination file 7_3_8_1.copy");
+ 44         return 1;
+ 45     }
+ 46 
+ 47     /* read line from source file */
+ 48     while(fgets(textLine, sizeof(textLine), srcFile) != NULL)
+ 49     {
+ 50         /* write line to destination file with formated line number in front */
+ 51         fprintf(destFile, "%3d %s", line++, textLine);
+ 52     }
+ 53 
+ 54     /* close source and destination files */
+ 55     fclose(srcFile);
+ 56     fclose(destFile);
+ 57 
+ 58     return 0;
+ 59 }
+ 60 
+ 61 /* Actual output will be in 7_3_8_1.copy file */
