@@ -38,15 +38,93 @@ Example output
 127.2555.0.1 is not a valid IP address
 */
 
+#define PROMPT "Enter an IP address (Enter \'q\' to quit): "
+#define QUIT 'q'
+#define VALIDIP 1
+#define INVALIDIP 0
+#define MIN 0
+#define MAX 256
+#define NUMVALPARTS 4
+
 #include <stdio.h>
 
-/* your code */
+/* function declarations */
+
+/*  isValidIP prints a statement if IP valid or not
+    input: string
+    output: void */
+void isValidIP(char *ip);
+
+/*  checkIP checks if IP address is valid or not
+    input: string
+    output: INVALIDIP if invalid IP, VALIDIP if valid IP */
+int checkIP(char *ip);
 
 int main()
 {
-    /* your code */
-    
+    char ip[20];
+
+    /* keep asking for and validating ip address until q is entered */
+    do
+    {
+        /* prompt and enter IP address as string */
+        printf(PROMPT);
+        scanf("%s", ip);
+
+        if(ip[0] != QUIT) /* not exit character, check iP */
+            isValidIP(ip); /* validate IP and print result */
+    }while(ip[0] != QUIT);
+
     return 0;
 }
 
-/* your code */
+/* function definitions */
+
+void isValidIP(char *ip)
+{
+    if(checkIP(ip) == INVALIDIP)    /* call checkIP() with pointer address of ip and print response based on return value 1 or 0 */
+        printf("%s is not a valid IP address.\n", ip);
+    else
+        printf("%s is a valid IP address\n", ip);
+}
+
+int checkIP(char *ip)
+{
+    int part[5];    /* IP address parts (part 5 is to check for too many parts) */
+    int validParts, loop;
+
+    /* use sscanf to check ip string and return 4 integer parts.
+       if any of the parts is not a valid integer, sscanf will return the number of valid parts
+       which will be less than 4. If 5 parts are found, there is at least 1 extra decimal place */
+    validParts = sscanf(ip, "%d.%d.%d.%d.%d", &part[0], &part[1], &part[2], &part[3], &part[4]);
+
+    if(validParts == NUMVALPARTS)
+    {
+        /* validate all 4 parts are in valid value range */
+        for(loop = MIN; loop < NUMVALPARTS; loop++)
+        {
+            if((part[loop] >= MIN && part[loop] < MAX))
+            return VALIDIP;
+        }
+    }
+
+    /* if number was not valid and function did not return 1 then return 0 for invalid IP */
+    return INVALIDIP;
+}
+
+/* Actual output (copied from console window)
+
+Enter an IP address (Enter 'q' to quit): 125.255.0.1
+125.255.0.1 is a valid IP address
+Enter an IP address (Enter 'q' to quit): 0.0.0.0
+0.0.0.0 is a valid IP address
+Enter an IP address (Enter 'q' to quit): 0.0.0.0.0
+0.0.0.0.0 is not a valid IP address.
+Enter an IP address (Enter 'q' to quit): 0.0.0
+0.0.0 is not a valid IP address.
+Enter an IP address (Enter 'q' to quit): a
+a is not a valid IP address.
+Enter an IP address (Enter 'q' to quit): a.a.a.a
+a.a.a.a is not a valid IP address.
+Enter an IP address (Enter 'q' to quit): q
+*/
